@@ -270,6 +270,13 @@ func (s *Server) handleConnectorLogin(w http.ResponseWriter, r *http.Request) {
 				s.renderError(r, w, http.StatusInternalServerError, "Login error.")
 				return
 			}
+			if v := r.Form.Get("initiating_url"); v != "" {
+				u, _ := url.Parse(callbackURL)
+				q := u.Query()
+				q.Set("initiating_url", v)
+				u.RawQuery = q.Encode()
+				callbackURL = u.String()
+			}
 			http.Redirect(w, r, callbackURL, http.StatusFound)
 		case connector.PasswordConnector:
 			loginURL := url.URL{
